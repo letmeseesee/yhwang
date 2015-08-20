@@ -33,3 +33,33 @@ function do_html_header($user,$action,$selectAccount){
 function formet_action($action){
     return true;
 }
+function display_account_setup($user){
+    return true;
+}
+function send_message($to,$cc,$subject,$message){
+    return true;
+}
+function delete_message($user,$account,$messageId){
+    return true;
+}
+function display_list($user,$account){
+    return true;
+}
+function display_message($user,$account,$messageId,$fullheaders){
+    return true;
+}
+function open_mailbox($user,$account){
+    return true;
+}
+function add_quoting($body){
+    return true;
+}
+function display_new_message_from($user,$to,$cc,$subject,$body){
+    return true;
+}
+function display_toolbar($buttons){
+    return true;
+}
+function display_login_form($action){
+    return true;
+}

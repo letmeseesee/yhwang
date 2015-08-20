@@ -69,12 +69,14 @@ if($action){
 }else{
     do_html_header($_SESSION['auth_user'],"Warm Mail",$_SESSION['selected_account']);
 }
+display_toolbar($buttons);
 
 /*
  * Stage 3:根据当前的action来显示body
  * **/
 if(!check_auth_user()){
     echo "<p>You need to log in</p>";
+    display_login_form($action);
 }else{
     switch($action){
         case 'store-settings':
@@ -111,8 +113,45 @@ if(!check_auth_user()){
                 $subject = "Re: ".$header->subject;
                 $body = add_quoting(stripcslashes(imap_body($imap,$messageId)));
                 imap_close($imap);
-                fisplay_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
+                display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
             }
+            break;
+        case 'reply':
+            if(!$imap){
+                $imap = open_mailbox($_SESSION['auth_user'],$_SESSION['select_account']);
+            }
+            if($imap){
+                $header = imap_header($imap,$messageId);
+                if($header->reply_toaddress){
+                    $to = $header->reply_toaddress;
+                }else{
+                    $to = $header->fromaddress;
+                }
+                $subject = "Re: ".$header->subject;
+                $body = add_quoting(stripcslashes(imap_body($imap,$messageId)));
+                imap_close($imap);
+                display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
+            }
+            break;
+        case 'forward':
+            if(!$imap){
+                $imap = open_mailbox($_SESSION['auth_user'],$_SESSION['select_account']);
+            }
+            if($imap){
+                $header = imap_header($imap,$messageId);
+                $subject = "Fwd: ".$header->subject;
+                $body = add_quoting(stripcslashes(imap_body($imap,$messageId)));
+                imap_close($imap);
+                display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
+            }
+            break;
+        case 'new-message':
+            display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
             break;
     }
 }
+
+/*
+ * 显示尾部
+ * **/
+do_html_footer();
