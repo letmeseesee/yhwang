@@ -63,3 +63,6 @@ function display_toolbar($buttons){
 function display_login_form($action){
     return true;
 }
+function do_html_footer(){
+    return true;
+}
