@@ -32,7 +32,7 @@ if($username || $password){
         $_SESSION['auth_user'] = $username;
         if(number_of_accounts($_SESSION['auth_user']) == 1){
             $accounts = get_account_list($_SESSION['auth_user']);
-            $_SESSION['select_account'] = $account[0];//会默认选中一个邮件账户
+            $_SESSION['select_account'] = $accounts[0];
         }
     }else{
         $status .= "<p style='padding-bottom: 100px'>Sorry,login in failed.</p>";

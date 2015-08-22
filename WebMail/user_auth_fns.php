@@ -8,14 +8,33 @@
  */
 include_once("include_fns.php");
 $db = new db();//实例化一个数据库连接实例
-function login($user,$pass){
+function login($user,$pass){//用户登录
+    global $db;
+    $sql = "select * from uesrs WHERE username = ".$user ." and password = ".$pass;
+    $db->query($sql);
+    if(!$db->result['result']){
+        return false;
+    }
     return true;
 }
-function number_of_accounts($username){
-    return true;
+function number_of_accounts($username){//判断当前用户的账户数
+    global $db;
+    $sql = "select * from accounts WHERE username = ".$username;
+    $db->query($sql);
+    if($db->result['result']){
+        return $db->result['number'];
+    }
+    return false;
 }
-function get_account_list($username){
-    return true;
+function get_account_list($username){//返回上次查询的结果
+    global $db;
+    global $db;
+    $sql = "select * from accounts WHERE username = ".$username;
+    $db->query($sql);
+    if($db->result['result']){
+        return $db->result['data'];
+    }
+    return false;
 }
 function delete_account($username,$account){//删除用户,并且删除该用户所有的邮件账户,$account是当前账户的id
     global $db;
@@ -46,12 +65,12 @@ function filled_out($settings){//判断表单是否完整
     return true;
 }
 function account_exists($username,$account){
-    return true;
+    global $db;
+    $sql = "select * from accounts WHERE username = ".$username." and accountid = ".$account;
+    $db->query($sql);
+    return $db->result['result'];
 }
 function check_auth_user(){
-    return true;
-}
-function do_html_header($user,$action,$selectAccount){
     return true;
 }
 function formet_action($action){
@@ -64,6 +83,24 @@ function delete_message($user,$account,$messageId){
     return true;
 }
 function open_mailbox($user,$account){
+//    if(number_of_accounts($user) == 1){
+//        $accounts = get_account_list($user);
+//        $_SESSION['selected_account'] = $accounts[0];
+//        $account = $accounts[0];
+//    }
+    $settings = get_account_setting($user,$account);
+    if(!sizeof($settings)){
+        return 0;
+    }
+    $mailbox = "{".$settings['sever'];
+    if($settings['type'] == 'POP3'){
+        $mailbox .= "/POP3";
+    }
+    $mailbox .= ":".$settings['port']."}INBOX";
+    $imap = @imap_open($mailbox,$settings['remoteuser'],$settings['remotepassword']);
+    return $imap;
+}
+function get_account_setting($user,$account){//读取账户的设定
     return true;
 }
 function add_quoting($body){
