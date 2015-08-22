@@ -8,7 +8,6 @@
  * 1.先解决登陆问题
  */
 include_once("include_fns.php");
-$db = new db();//实例化一个数据库连接实例
 //if(!$db->ifConnectSuccess()){
 //    echo "数据库连接失败";
 //    exit;
@@ -33,7 +32,7 @@ if($username || $password){
         $_SESSION['auth_user'] = $username;
         if(number_of_accounts($_SESSION['auth_user']) == 1){
             $accounts = get_account_list($_SESSION['auth_user']);
-            $_SESSION['select_account'] = $account[0];
+            $_SESSION['select_account'] = $account[0];//会默认选中一个邮件账户
         }
     }else{
         $status .= "<p style='padding-bottom: 100px'>Sorry,login in failed.</p>";
@@ -46,8 +45,8 @@ if($action == 'log-out'){
 }
 
 switch($action){
-    case 'delete-account':delete_account($_SESSION['auth_user'],$account);break;//删除
-    case 'store-setting' :store_account_settings($_SESSION['auth_user'],$account);break;//设置
+    case 'delete-account':delete_account($_SESSION['auth_user'],$account);break;//确认删除
+    case 'store-setting' :store_account_settings($_SESSION['auth_user'],$_POST);break;//保存设置,用户和当前的邮件账户
     case 'select-account':if(($account) && (account_exists($_SESSION['auth_user'],$account))){
         $_SESSION['select_account'] = $account;
     };break;
@@ -72,7 +71,7 @@ if($action){
 display_toolbar($buttons);
 
 /*
- * Stage 3:根据当前的action来显示body
+ * Stage 3:根据当前的action来显示body(正文)
  * **/
 if(!check_auth_user()){
     echo "<p>You need to log in</p>";
@@ -81,12 +80,12 @@ if(!check_auth_user()){
     switch($action){
         case 'store-settings':
         case 'account-setup' :
-        case 'delete-account': display_account_setup($_SESSION['auth_user']);break;
+        case 'delete-account': display_account_setup($_SESSION['auth_user']);break;//显示同一个正文
         case 'send-message'  :if(send_message($to,$cc,$subject,$message)){
                                         echo "<p style='padding-bottom: 100px'>Message sent.</p>";
                                 }else{
                                         echo "<p style='padding-bottom: 100px'>Message sent failed.</p>";
-                                }
+                                }//发送邮件的正文
             break;
         case 'delete':
             delete_message($_SESSION['auth_user'],$_SESSION['select_account'],$messageId);break;
@@ -98,7 +97,7 @@ if(!check_auth_user()){
             $fullheaders = ($action == 'show-headers');
             display_message($_SESSION['auth_user'],$_SESSION['select_account'],$messageId,$fullheaders);
             break;
-        case 'reply-all':
+        case 'reply-all'://回复方式不同,会不会预先填满一些信息
             if(!$imap){
                 $imap = open_mailbox($_SESSION['auth_user'],$_SESSION['select_account']);
             }
@@ -145,7 +144,7 @@ if(!check_auth_user()){
                 display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
             }
             break;
-        case 'new-message':
+        case 'new-message'://填写新信息
             display_new_message_from($_SESSION['auth_user'],$to,$cc,$subject,$body);
             break;
     }
